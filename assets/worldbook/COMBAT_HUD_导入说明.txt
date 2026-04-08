@@ -1,0 +1,14 @@
+DND5E 战斗 + COMBAT_JSON（与 Vault 同一项目）
+
+一、推荐：随 Vault 角色卡同步世界书
+  1. 战斗条目已写在 src/vault/index.yaml →「条目 / 文件夹: 战斗」中，由 pnpm worldbook:dnd-combat 生成正文：
+     src/vault/世界书/战斗/*.yaml
+  2. 使用 tavern_sync 推送/打包该角色卡后，世界书内为「绿灯 + 关键字」触发，非战斗时几乎不占 token。
+  3. 前端：与 <VaultStatus/> 同源加载 dist/vault/界面/状态栏/index.html，在界面底部点「战斗 HUD」即可查看 COMBAT_JSON 动效（勿再单独开 combat-hud 入口）。
+
+二、可选：单独导入 JSON 世界书（与上重复，仅备用）
+  文件：assets/worldbook/dnd5e-combat-hud-v1.json（pnpm worldbook:dnd-combat 同步生成）
+  酒馆 → 世界书 → 导入 → 选择该文件。
+
+三、协议摘要
+  助手在叙事后追加单行：COMBAT_JSON:{...}（v=1，含 phase、actors、lastRoll 等，详见「战斗核心+HUD」条目）

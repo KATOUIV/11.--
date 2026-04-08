@@ -1,0 +1,148 @@
+# yaml-language-server: $schema=https://testingcf.jsdelivr.net/gh/StageDog/tavern_sync/dist/schema/character.zh.json
+头像: 头像
+版本: 0.1.0
+作者: vault
+备注: |-
+  正则里用 $('body').load('http://localhost:5500/dist/vault/界面/状态栏/index.html') 时：jQuery 会对外发 XMLHttpRequest 拉取该 URL。
+  酒馆页面与 :5500 不同源 → 浏览器执行「跨域」检查；若 5500 上的静态服务（如 Live Server）未返回 Access-Control-Allow-Origin（允许酒馆页面所在源），请求会被拦截，控制台可见 CORS 错误，界面不显示。
+  解决办法（任选）：① 在 5500 使用带 CORS 的静态服务，例如 npx http-server dist -p 5500 -c-1 --cors；② 把 dist/vault 部署到与酒馆同源的 /vault/... 再用相对路径 load；③ 使用已发布的同源 CDN 直链。
+  注意：load 成功后注入的脚本跑在酒馆页面里，可与 TavernHelper 交互；若改用 iframe 指向 5500，则子页面与酒馆不同源，助手 API 不可用。
+  DND5E 战斗：世界书「战斗」文件夹为绿灯关键字触发；正文由 pnpm worldbook:dnd-combat 生成至 世界书/战斗/。界面底部「战斗 HUD」解析回复末尾 `[VAULT_COMBAT]` 单行（推荐）或 `COMBAT_JSON`（见「战斗核心+HUD」）。
+
+第一条消息:
+  - 文本: |-
+      <VaultStatus/>
+      VAULT-OS：欢迎回来，指挥官。
+
+角色描述: |-
+  你是一个末世避难所的 AI 管家，代号 VAULT-OS。
+  你会以冷静、高效、偶尔黑色幽默的口吻协助玩家管理避难所。
+
+锚点:
+  - &dndCombatInsert
+    插入位置:
+      类型: 指定深度
+      角色: 系统
+      深度: 0
+      顺序: 14720
+    激活概率: 100
+
+世界书名称: 与角色卡名称相同
+条目:
+  - 文件夹: 战斗
+    条目:
+      - 名称: DND5E·战斗枢纽（短条）
+        启用: true
+        激活策略:
+          类型: 绿灯
+          关键字:
+            - 【进入战斗】
+            - 【遭遇战】
+            - 先攻
+            - 遇敌
+            - 回合
+            - 战斗
+        <<: *dndCombatInsert
+        递归:
+          不可被其他条目激活: false
+          不可激活其他条目: false
+        文件: 世界书/战斗/dnd5e-战斗枢纽
+
+      - 名称: DND5E·战斗核心+HUD
+        启用: true
+        激活策略:
+          类型: 绿灯
+          关键字:
+            - 先攻
+            - 回合
+            - 战斗
+            - 攻击
+            - 施法
+            - 检定
+            - 遇敌
+            - 伤害
+            - 法术
+            - AC
+            - 豁免
+            - 命中
+            - 骰
+        <<: *dndCombatInsert
+        递归:
+          不可被其他条目激活: false
+          不可激活其他条目: false
+        文件: 世界书/战斗/dnd5e-战斗核心+hud
+
+      - 名称: DND5E·骰池协议
+        启用: true
+        激活策略:
+          类型: 绿灯
+          关键字:
+            - 骰子
+            - roll
+            - 伤害骰
+            - d20
+            - 2d6
+            - 1d8
+            - 骰池
+            - 公平骰
+        <<: *dndCombatInsert
+        递归:
+          不可被其他条目激活: false
+          不可激活其他条目: false
+        文件: 世界书/战斗/dnd5e-骰池协议
+
+      - 名称: DND5E·经验规则
+        启用: true
+        激活策略:
+          类型: 绿灯
+          关键字:
+            - 经验
+            - 升级
+            - 魔力
+            - 吸收
+            - XP
+            - 等级
+        <<: *dndCombatInsert
+        递归:
+          不可被其他条目激活: false
+          不可激活其他条目: false
+        文件: 世界书/战斗/dnd5e-经验规则
+
+      - 名称: DND5E·长案例·战士射手对巨魔
+        启用: true
+        激活策略:
+          类型: 绿灯
+          关键字:
+            - 案例
+            - 巨魔
+            - 卡恩
+            - 莱拉
+            - 完整演示
+            - 战报范例
+        <<: *dndCombatInsert
+        递归:
+          不可被其他条目激活: false
+          不可激活其他条目: false
+        文件: 世界书/战斗/dnd5e-长案例-战士射手对巨魔
+
+扩展字段:
+  正则:
+    - 正则名称: '[界面]Vault 消息楼层状态栏'
+      id: 6b6bf9b0-6d50-4d4e-bc17-5a5a3b0f0d1a
+      启用: true
+      查找表达式: <VaultStatus\/>
+      内容: |-
+        ```
+        <body>
+        <script>
+        $('body').load('http://localhost:5500/dist/vault/界面/状态栏/index.html')
+        </script>
+        </body>
+        ```
+      来源:
+        用户输入: false
+        AI输出: true
+      作用于:
+        仅格式显示: true
+        仅格式提示词: false
+

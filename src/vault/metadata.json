@@ -1,0 +1,5 @@
+{
+  "name": "避难所指挥官 (Vault Commander)",
+  "description": "一款基于大语言模型的末世避难所模拟经营与政治管理游戏，采用经典的 Pip-Boy 风格界面。",
+  "requestFramePermissions": []
+}

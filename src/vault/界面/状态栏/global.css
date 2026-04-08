@@ -1,0 +1,812 @@
+@import "tailwindcss";
+
+@theme {
+  --color-vault-green: #00ff41;
+  --color-vault-amber: #ffb347;
+  --color-vault-bg: #070a07;
+  --color-vault-panel: rgba(0, 255, 65, 0.06);
+  --color-vault-border: rgba(0, 255, 65, 0.25);
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Mono", "Consolas", "Microsoft YaHei", monospace;
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-mono);
+    background: var(--color-vault-bg);
+    color: var(--color-vault-green);
+    overflow-y: auto;
+    /* 与 iframe 可视区同高，避免子元素仅 600px 时底部露出底色形成「黑条」 */
+    min-height: 100%;
+    min-height: 100dvh;
+    /* 刘海屏 / 底部手势条 */
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  #app {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    /* 小屏：随视口高度填满，避免强塞 600px 导致手机双滚动条 */
+    min-height: 100%;
+    min-height: 100dvh;
+  }
+
+  @media (min-width: 640px) {
+    #app {
+      min-height: max(600px, 100%);
+    }
+  }
+
+  /* 与终端绿字协调的滚动条（WebKit） */
+  .vault-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .vault-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 8, 4, 0.85);
+    border-radius: 3px;
+  }
+
+  .vault-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(0, 255, 65, 0.35) 0%, rgba(0, 140, 72, 0.45) 100%);
+    border-radius: 3px;
+    box-shadow: 0 0 6px rgba(0, 255, 65, 0.15);
+  }
+
+  .vault-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(0, 255, 65, 0.5) 0%, rgba(0, 180, 90, 0.55) 100%);
+  }
+
+  .vault-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+@layer components {
+  /* CRT 外框：双层描边 + 内阴影 + 扫描线（弱化） */
+  .vault-crt-shell {
+    position: relative;
+    border-radius: 6px;
+    border: 2px solid rgba(0, 255, 65, 0.38);
+    background: linear-gradient(165deg, rgba(0, 18, 10, 0.98) 0%, #040806 45%, #020403 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+      inset 0 0 0 2px rgba(0, 40, 22, 0.35),
+      inset 0 0 48px rgba(0, 255, 65, 0.03),
+      0 0 0 1px rgba(0, 255, 65, 0.06);
+  }
+
+  .vault-crt-shell::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.13) 2px,
+      rgba(0, 0, 0, 0.13) 4px
+    );
+    opacity: 0.4;
+    z-index: 0;
+  }
+
+  .vault-crt-shell::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 2px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 65, 0.12);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.45);
+    z-index: 0;
+  }
+
+  .vault-crt-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .vault-panel {
+    border: 1px solid var(--color-vault-border);
+    background: var(--color-vault-panel);
+    backdrop-filter: blur(6px);
+  }
+
+  .vault-btn {
+    border: 1px solid var(--color-vault-border);
+    background: rgba(0, 255, 65, 0.04);
+    color: var(--color-vault-green);
+  }
+  .vault-btn:hover {
+    background: rgba(0, 255, 65, 0.14);
+  }
+
+  .vault-combat-shell {
+    color: var(--color-vault-green);
+  }
+
+  .vault-combat-chip {
+    border: 1px solid rgba(255, 179, 71, 0.35);
+    background: rgba(255, 179, 71, 0.06);
+    color: rgba(0, 255, 65, 0.92);
+  }
+
+  .vault-combat-btn {
+    border: 1px solid rgba(255, 179, 71, 0.4);
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--color-vault-amber);
+  }
+
+  .vault-combat-btn:hover {
+    background: rgba(255, 179, 71, 0.12);
+  }
+
+  .vault-combat-card {
+    border: 1px solid var(--color-vault-border);
+    background: rgba(0, 0, 0, 0.38);
+  }
+
+  .vault-combat-list {
+    border: 1px solid rgba(0, 255, 65, 0.18);
+    background: rgba(0, 8, 4, 0.35);
+  }
+
+  /* Pip-Boy / 战斗 HUD 三页签 */
+  .vault-pipboy {
+    background: radial-gradient(120% 80% at 50% 0%, rgba(20, 40, 22, 0.5) 0%, rgba(0, 8, 4, 0.92) 45%, rgba(0, 0, 0, 0.95) 100%);
+  }
+
+  .vault-pipboy__glow {
+    text-shadow: 0 0 12px rgba(255, 179, 71, 0.35);
+  }
+
+  .vault-pipboy-panel {
+    border: 1px solid rgba(255, 179, 71, 0.22);
+    background: linear-gradient(165deg, rgba(0, 24, 8, 0.55) 0%, rgba(0, 0, 0, 0.42) 100%);
+    box-shadow: inset 0 0 0 1px rgba(0, 255, 65, 0.06);
+  }
+
+  .vault-pipboy-code {
+    font-family: ui-monospace, 'Cascadia Code', monospace;
+    color: rgba(180, 255, 160, 0.88);
+    border: 1px solid rgba(0, 255, 65, 0.2);
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .vault-pipboy-tab {
+    border: 1px solid rgba(255, 179, 71, 0.28);
+    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 179, 71, 0.75);
+  }
+
+  .vault-pipboy-tab:hover {
+    background: rgba(255, 179, 71, 0.1);
+    color: rgba(255, 230, 180, 0.95);
+  }
+
+  .vault-pipboy-tab--active {
+    border-color: rgba(255, 179, 71, 0.65);
+    background: rgba(255, 179, 71, 0.12);
+    color: #ffd89a;
+    box-shadow: 0 0 14px rgba(255, 179, 71, 0.15);
+  }
+
+  .vault-pipboy-hpbar {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+  }
+
+  .vault-pipboy__header {
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.8);
+  }
+
+  .vault-input {
+    border: 1px solid var(--color-vault-border);
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--color-vault-green);
+    outline: none;
+  }
+  .vault-input::placeholder {
+    color: rgba(0, 255, 65, 0.4);
+  }
+
+  .vault-option-tile {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0, 255, 65, 0.35);
+    background: linear-gradient(145deg, rgba(0, 255, 65, 0.1) 0%, rgba(0, 0, 0, 0.45) 48%, rgba(0, 255, 65, 0.04) 100%);
+    box-shadow: 0 0 0 1px rgba(0, 255, 65, 0.08) inset;
+    transition:
+      transform 0.22s ease,
+      box-shadow 0.22s ease,
+      border-color 0.22s ease;
+  }
+
+  .vault-option-tile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(0, 255, 65, 0.07) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+    pointer-events: none;
+  }
+
+  .vault-option-tile:hover::before {
+    transform: translateX(100%);
+  }
+
+  .vault-option-tile:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 255, 65, 0.55);
+    box-shadow:
+      0 4px 18px rgba(0, 0, 0, 0.35),
+      0 0 24px rgba(0, 255, 65, 0.12);
+  }
+
+  .vault-option-tile:active {
+    transform: translateY(0);
+  }
+
+  .vault-option-key {
+    text-shadow: 0 0 12px rgba(0, 255, 65, 0.55);
+  }
+
+  .vault-stat-root {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 65, 0.35) rgba(0, 8, 4, 0.85);
+  }
+
+  /* 嵌套层级：左侧色带 + 缩进（TS 内联 margin）+ 标题字重/色相区分 */
+  .vault-stat-details.vault-stat-depth-surface {
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgba(0, 255, 65, 0.22);
+    background: rgba(0, 0, 0, 0.2);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .vault-stat-details.vault-stat-depth-surface[open] {
+    box-shadow:
+      0 0 0 1px rgba(0, 255, 65, 0.06) inset,
+      0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .vault-stat-details[data-depth="0"] {
+    border-left: 4px solid rgba(0, 255, 65, 0.72);
+    background: linear-gradient(165deg, rgba(0, 255, 65, 0.09) 0%, rgba(0, 0, 0, 0.22) 52%, rgba(0, 0, 0, 0.12) 100%);
+  }
+
+  .vault-stat-details[data-depth="1"] {
+    border-left: 4px solid rgba(34, 211, 238, 0.55);
+    background: linear-gradient(165deg, rgba(34, 211, 238, 0.06) 0%, rgba(0, 0, 0, 0.2) 55%, transparent 100%);
+  }
+
+  .vault-stat-details[data-depth="2"] {
+    border-left: 4px solid rgba(251, 191, 36, 0.5);
+    background: linear-gradient(165deg, rgba(251, 191, 36, 0.05) 0%, rgba(0, 0, 0, 0.22) 55%, transparent 100%);
+  }
+
+  .vault-stat-details[data-depth="3"] {
+    border-left: 4px solid rgba(167, 139, 250, 0.52);
+    background: linear-gradient(165deg, rgba(167, 139, 250, 0.06) 0%, rgba(0, 0, 0, 0.2) 55%, transparent 100%);
+  }
+
+  .vault-stat-details[data-depth="4"] {
+    border-left: 4px solid rgba(251, 113, 133, 0.48);
+    background: linear-gradient(165deg, rgba(251, 113, 133, 0.05) 0%, rgba(0, 0, 0, 0.22) 55%, transparent 100%);
+  }
+
+  .vault-stat-details[data-depth="5"],
+  .vault-stat-details[data-depth="6"] {
+    border-left: 4px solid rgba(148, 163, 184, 0.45);
+    background: linear-gradient(165deg, rgba(148, 163, 184, 0.06) 0%, rgba(0, 0, 0, 0.24) 55%, transparent 100%);
+  }
+
+  .vault-stat-details[data-depth="0"] > .vault-stat-summary {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: rgba(0, 255, 65, 0.98);
+  }
+
+  .vault-stat-details[data-depth="1"] > .vault-stat-summary {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(165, 243, 252, 0.95);
+  }
+
+  .vault-stat-details[data-depth="2"] > .vault-stat-summary {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(253, 230, 138, 0.92);
+  }
+
+  .vault-stat-details[data-depth="3"] > .vault-stat-summary {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(216, 180, 254, 0.92);
+  }
+
+  .vault-stat-details[data-depth="4"] > .vault-stat-summary {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(254, 202, 202, 0.9);
+  }
+
+  .vault-stat-details[data-depth="5"] > .vault-stat-summary,
+  .vault-stat-details[data-depth="6"] > .vault-stat-summary {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(203, 213, 225, 0.9);
+  }
+
+  .vault-stat-nested {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.06) 12px, transparent 14px);
+  }
+
+  .vault-stat-summary:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .vault-stat-details[open] > .vault-stat-summary {
+    border-bottom: 1px solid rgba(0, 255, 65, 0.14);
+    margin-bottom: 0.15rem;
+  }
+
+  .vault-stat-leaf-row[data-depth="0"] {
+    border-left: 3px solid rgba(0, 255, 65, 0.35);
+    padding-left: 0.5rem;
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+  .vault-stat-leaf-row[data-depth="1"] {
+    border-left: 3px solid rgba(34, 211, 238, 0.35);
+    padding-left: 0.5rem;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .vault-stat-leaf-row[data-depth="2"] {
+    border-left: 3px solid rgba(251, 191, 36, 0.32);
+    padding-left: 0.5rem;
+  }
+
+  .vault-stat-leaf-row[data-depth="3"] {
+    border-left: 3px solid rgba(167, 139, 250, 0.32);
+    padding-left: 0.5rem;
+  }
+
+  .vault-stat-leaf-row[data-depth="4"] {
+    border-left: 3px solid rgba(251, 113, 133, 0.3);
+    padding-left: 0.5rem;
+  }
+
+  .vault-stat-leaf-row[data-depth="5"],
+  .vault-stat-leaf-row[data-depth="6"] {
+    border-left: 3px solid rgba(148, 163, 184, 0.3);
+    padding-left: 0.5rem;
+  }
+
+  .vault-stat-array-label {
+    color: rgba(0, 255, 65, 0.55);
+  }
+
+  .vault-stat-array-item[data-depth="1"] {
+    border-color: rgba(34, 211, 238, 0.35);
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  .vault-stat-array-item[data-depth="2"] {
+    border-color: rgba(251, 191, 36, 0.32);
+    background: rgba(0, 0, 0, 0.26);
+  }
+
+  .vault-stat-array-item[data-depth="3"] {
+    border-color: rgba(167, 139, 250, 0.32);
+    background: rgba(0, 0, 0, 0.24);
+  }
+
+  .vault-stat-array-item[data-depth="4"] {
+    border-color: rgba(251, 113, 133, 0.28);
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  .vault-stat-array-item[data-depth="5"],
+  .vault-stat-array-item[data-depth="6"] {
+    border-color: rgba(148, 163, 184, 0.3);
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  .vault-stat-meter-fill {
+    box-shadow: 0 0 12px rgba(0, 255, 65, 0.25);
+  }
+
+  /* 顶部只读环境档案（横向紧凑） */
+  .vault-ambient-strip {
+    border: 1px solid rgba(0, 255, 65, 0.22);
+    background: linear-gradient(90deg, rgba(0, 14, 8, 0.96) 0%, rgba(0, 8, 5, 0.92) 100%);
+    box-shadow: inset 0 1px 0 rgba(0, 255, 65, 0.06);
+    overflow: visible;
+  }
+
+  .vault-ambient-strip dl {
+    margin: 0;
+  }
+
+  /* 环境 chip：默认换行，不出现横向滚动条 */
+  .vault-ambient-chips {
+    overflow-x: visible;
+  }
+
+  /* 极窄视口：才允许单行横向滚动，滚动条与背景融合、低对比 */
+  @media (max-width: 380px) {
+    .vault-ambient-chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 255, 65, 0.12) rgba(0, 4, 2, 0.55);
+    }
+
+    .vault-ambient-chips::-webkit-scrollbar {
+      height: 3px;
+    }
+
+    .vault-ambient-chips::-webkit-scrollbar-track {
+      background: rgba(0, 3, 2, 0.65);
+      border-radius: 2px;
+    }
+
+    .vault-ambient-chips::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 65, 0.14);
+      border-radius: 2px;
+    }
+
+    .vault-ambient-chips::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 255, 65, 0.22);
+    }
+  }
+
+  /* 正文区：单栏滚动，避免与外层双滚动条 */
+  .vault-maintext-region {
+    box-shadow: inset 0 0 0 1px rgba(0, 255, 65, 0.06);
+  }
+
+  /* 底部分点导航 */
+  .vault-tab-rail {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 65, 0.32) rgba(0, 6, 0, 0.5);
+    border-top: 1px solid rgba(0, 255, 65, 0.18);
+    padding-top: 0.5rem;
+    margin-top: 0.125rem;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: max(0.25rem, env(safe-area-inset-left, 0));
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: max(0.125rem, env(safe-area-inset-bottom, 0));
+  }
+
+  .vault-tab-pill {
+    border: 1px solid rgba(0, 255, 65, 0.28);
+    background: rgba(0, 0, 0, 0.35);
+    color: rgba(0, 255, 65, 0.75);
+    scroll-snap-align: start;
+    min-height: 2.75rem;
+    transition:
+      background 0.18s ease,
+      border-color 0.18s ease,
+      color 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  @media (min-width: 640px) {
+    .vault-tab-pill {
+      min-height: unset;
+    }
+  }
+
+  .vault-tab-pill:hover:not(:disabled) {
+    border-color: rgba(0, 255, 65, 0.5);
+    color: rgba(0, 255, 65, 0.95);
+    background: rgba(0, 255, 65, 0.08);
+  }
+
+  .vault-tab-pill[data-active="true"] {
+    border-color: rgba(0, 255, 65, 0.65);
+    color: rgba(0, 255, 65, 1);
+    background: rgba(0, 255, 65, 0.12);
+    box-shadow: 0 0 16px rgba(0, 255, 65, 0.12);
+  }
+
+  .vault-main-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 65, 0.32) rgba(0, 6, 0, 0.5);
+  }
+
+  .vault-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 65, 0.35) rgba(0, 8, 4, 0.85);
+  }
+
+  /* 开局书本：书脊 + 内页纸感（与终端绿 UI 一致） */
+  .vault-opening-book-outer {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    width: 100%;
+    max-width: 28rem;
+    margin-inline: auto;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.45),
+      inset 0 0 0 1px rgba(0, 255, 65, 0.08);
+  }
+
+  .vault-opening-book-spine {
+    width: 0.65rem;
+    flex-shrink: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 40, 22, 0.35) 40%,
+      rgba(0, 255, 65, 0.08) 100%
+    );
+    box-shadow: inset -3px 0 10px rgba(0, 0, 0, 0.6);
+  }
+
+  .vault-opening-book-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vault-opening-book-page {
+    position: relative;
+    background:
+      linear-gradient(180deg, rgba(0, 14, 8, 0.97) 0%, rgba(0, 8, 4, 0.99) 100%),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 1px,
+        rgba(0, 255, 65, 0.02) 1px,
+        rgba(0, 255, 65, 0.02) 2px
+      );
+  }
+
+  .vault-opening-book-page::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, transparent 42%, transparent 58%, rgba(0, 0, 0, 0.12) 100%);
+    opacity: 0.9;
+  }
+
+  /*
+   * Boot gate：废土避难所 / Pip-Boy 终端气质
+   * 深橄榄与煤灰底 + 辐射黄点缀 + 避难所圆形闸门 + 斜向警戒纹（纯 CSS，无外部素材）
+   */
+  .vault-boot-gate.vault-crt-shell {
+    background: transparent;
+    isolation: isolate;
+  }
+
+  .vault-boot-gate__art {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .vault-boot-gate__art-base {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 90% 55% at 50% 32%, rgba(0, 255, 65, 0.11) 0%, transparent 58%),
+      radial-gradient(ellipse 100% 70% at 50% 108%, rgba(180, 120, 28, 0.22) 0%, transparent 48%),
+      radial-gradient(ellipse 80% 50% at 20% 80%, rgba(139, 90, 18, 0.12) 0%, transparent 45%),
+      radial-gradient(ellipse 70% 45% at 85% 75%, rgba(60, 45, 12, 0.35) 0%, transparent 42%),
+      linear-gradient(185deg, #0b0e09 0%, #141910 22%, #0f140d 52%, #060805 100%);
+  }
+
+  .vault-boot-gate__art-fog {
+    position: absolute;
+    inset: -5%;
+    background: radial-gradient(ellipse 70% 40% at 50% 60%, rgba(210, 165, 55, 0.06) 0%, transparent 55%);
+    mix-blend-mode: screen;
+    opacity: 0.85;
+    animation: vault-boot-fog 9s ease-in-out infinite;
+  }
+
+  .vault-boot-gate__art-hazard {
+    position: absolute;
+    inset: -30%;
+    background: repeating-linear-gradient(
+      -42deg,
+      transparent,
+      transparent 18px,
+      rgba(0, 255, 65, 0.028) 18px,
+      rgba(0, 255, 65, 0.028) 36px
+    );
+    opacity: 0.55;
+  }
+
+  .vault-boot-gate__art-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 255, 65, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 65, 0.045) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, black 20%, transparent 72%);
+    opacity: 0.65;
+  }
+
+  .vault-boot-gate__art-door-wrap {
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    width: min(76vw, 300px);
+    aspect-ratio: 1;
+    max-width: 300px;
+  }
+
+  .vault-boot-gate__art-door-glow {
+    position: absolute;
+    inset: -8%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 255, 65, 0.2) 0%, transparent 68%);
+    filter: blur(8px);
+    animation: vault-boot-pulse 4.2s ease-in-out infinite;
+  }
+
+  .vault-boot-gate__art-door {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid rgba(0, 255, 65, 0.26);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.65),
+      inset 0 0 50px rgba(0, 255, 65, 0.05),
+      inset 0 -20px 40px rgba(0, 0, 0, 0.55),
+      0 0 80px rgba(0, 255, 65, 0.1);
+    background:
+      radial-gradient(circle at 38% 32%, rgba(255, 220, 120, 0.06) 0%, transparent 35%),
+      radial-gradient(circle at 50% 50%, rgba(8, 12, 8, 0.9) 0%, rgba(4, 8, 5, 0.98) 100%);
+  }
+
+  .vault-boot-gate__art-door::before {
+    content: "";
+    position: absolute;
+    inset: 11%;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 255, 65, 0.2);
+    background: repeating-conic-gradient(
+      from 0deg,
+      rgba(0, 255, 65, 0.06) 0deg 22.5deg,
+      transparent 22.5deg 45deg
+    );
+    opacity: 0.9;
+  }
+
+  .vault-boot-gate__art-door::after {
+    content: "";
+    position: absolute;
+    inset: 26%;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 255, 65, 0.14);
+    box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.5);
+    background: radial-gradient(circle at 50% 50%, rgba(0, 255, 65, 0.04) 0%, transparent 62%);
+  }
+
+  .vault-boot-gate__art-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 72% 65% at 50% 48%, transparent 35%, rgba(0, 0, 0, 0.75) 100%);
+    pointer-events: none;
+  }
+
+  .vault-boot-gate__art-noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  .vault-boot-gate__rad {
+    position: absolute;
+    left: 50%;
+    bottom: 10%;
+    z-index: 2;
+    transform: translateX(-50%);
+    width: 3.25rem;
+    height: 3.25rem;
+    color: rgba(0, 255, 65, 0.14);
+    filter: drop-shadow(0 0 12px rgba(0, 255, 65, 0.15));
+  }
+
+  .vault-boot-gate__card {
+    position: relative;
+    border: 1px solid rgba(0, 255, 65, 0.38);
+    background: linear-gradient(165deg, rgba(0, 12, 6, 0.92) 0%, rgba(0, 8, 4, 0.88) 100%);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.5),
+      0 12px 48px rgba(0, 0, 0, 0.55),
+      0 0 36px rgba(0, 255, 65, 0.08);
+    backdrop-filter: blur(8px);
+  }
+
+  .vault-boot-gate__card::before,
+  .vault-boot-gate__card::after {
+    content: "";
+    position: absolute;
+    width: 0.65rem;
+    height: 0.65rem;
+    border: 1px solid rgba(0, 255, 65, 0.45);
+    pointer-events: none;
+  }
+
+  .vault-boot-gate__card::before {
+    top: 0.5rem;
+    left: 0.5rem;
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  .vault-boot-gate__card::after {
+    bottom: 0.5rem;
+    right: 0.5rem;
+    border-left: 0;
+    border-top: 0;
+  }
+
+  @keyframes vault-boot-pulse {
+    0%,
+    100% {
+      opacity: 0.45;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.75;
+      transform: scale(1.03);
+    }
+  }
+
+  @keyframes vault-boot-fog {
+    0%,
+    100% {
+      opacity: 0.7;
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      opacity: 0.85;
+      transform: translate(1.5%, -0.5%) scale(1.02);
+    }
+    66% {
+      opacity: 0.75;
+      transform: translate(-1%, 0.5%) scale(0.99);
+    }
+  }
+}
+

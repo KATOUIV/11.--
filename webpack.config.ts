@@ -187,6 +187,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
     .readFileSync(path.join(import.meta.dirname, entry.script), 'utf-8')
     .includes('@obfuscate');
   const script_filepath = path.parse(entry.script);
+<<<<<<< HEAD
   /** jQuery $('body').load(html) 注入的片段不会执行 type=module 脚本；该入口改为经典 IIFE 包 + 普通 script */
   const script_rel = entry.script.replace(/\\/g, '/');
   const jqueryLoadCompatHtml =
@@ -197,6 +198,12 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
   return (_env, argv) => ({
     experiments: {
       outputModule: !jqueryLoadCompatHtml,
+=======
+
+  return (_env, argv) => ({
+    experiments: {
+      outputModule: true,
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
     },
     devtool: argv.mode === 'production' ? 'source-map' : 'eval-source-map',
     watchOptions: {
@@ -226,6 +233,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       asyncChunks: true,
       clean: true,
       publicPath: '',
+<<<<<<< HEAD
       ...(jqueryLoadCompatHtml
         ? {}
         : {
@@ -233,15 +241,23 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               type: 'module' as const,
             },
           }),
+=======
+      library: {
+        type: 'module',
+      },
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
     },
     module: {
       rules: [
         {
+<<<<<<< HEAD
           test: /\.(png|jpe?g|webp|gif|svg)$/i,
           type: 'asset/resource',
           exclude: /node_modules/,
         },
         {
+=======
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
           test: /\.vue$/,
           use: 'vue-loader',
           exclude: /node_modules/,
@@ -439,7 +455,11 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
           new HtmlWebpackPlugin({
             template: path.join(import.meta.dirname, entry.html),
             filename: path.parse(entry.html).base,
+<<<<<<< HEAD
             scriptLoading: jqueryLoadCompatHtml ? 'blocking' : 'module',
+=======
+            scriptLoading: 'module',
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
             cache: false,
           }),
           new HtmlInlineScriptWebpackPlugin(),
@@ -553,12 +573,15 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         return callback();
       }
 
+<<<<<<< HEAD
       /** 打入 bundle，避免运行时从 jsdelivr 拉取失败导致前端界面白屏（离线、防火墙、内网等） */
       const bundle_npm_instead_of_cdn = new Set(['clsx', 'tailwind-merge', 'scheduler']);
       if (bundle_npm_instead_of_cdn.has(request)) {
         return callback();
       }
 
+=======
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
       if (
         ['vue', 'vue-router'].every(key => request !== key) &&
         ['pixi', 'react', 'vue'].some(key => request.includes(key))

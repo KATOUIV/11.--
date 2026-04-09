@@ -23,7 +23,11 @@
     "@types/showdown": "^2.0.6",
     "@types/toastr": "^2.1.43",
     "@types/webpack": "^5.28.5",
+<<<<<<< HEAD
     "@typescript-eslint/parser": "^8.57.2",
+=======
+    "@typescript-eslint/parser": "^8.58.0",
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
     "autoprefixer": "^10.4.27",
     "chokidar": "^4.0.3",
     "css-loader": "^7.1.4",
@@ -53,19 +57,31 @@
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
     "remark-loader": "^6.0.0",
+<<<<<<< HEAD
     "sass": "^1.98.0",
+=======
+    "sass": "^1.99.0",
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
     "sass-loader": "^16.0.7",
     "socket.io": "^4.8.3",
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.2.2",
     "terser-webpack-plugin": "^5.4.0",
+<<<<<<< HEAD
     "ts-loader": "^9.5.4",
+=======
+    "ts-loader": "^9.5.7",
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
     "ts-node": "^10.9.2",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "tslib": "^2.8.1",
     "type-fest": "^4.41.0",
     "typescript": "6.0.0-dev.20250807",
+<<<<<<< HEAD
     "typescript-eslint": "^8.57.2",
+=======
+    "typescript-eslint": "^8.58.0",
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
     "unplugin-auto-import": "^20.3.0",
     "unplugin-vue-components": "^29.2.0",
     "vue-eslint-parser": "^10.4.0",
@@ -83,7 +99,11 @@
     "@vueuse/integrations": "^13.9.0",
     "@vueuse/shared": "^13.9.0",
     "async-wait-until": "^2.0.31",
+<<<<<<< HEAD
     "clsx": "^2.1.1",
+=======
+    "axios": "1.14.0",
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
     "compare-versions": "^6.1.1",
     "dedent": "^1.7.2",
     "gsap": "^3.14.2",
@@ -92,16 +112,25 @@
     "json5": "^2.2.3",
     "jsonrepair": "^3.13.3",
     "klona": "^2.0.6",
+<<<<<<< HEAD
     "lodash": "^4.17.23",
     "lucide-react": "^1.7.0",
+=======
+    "lodash": "^4.18.1",
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
     "pinia": "^3.0.4",
     "pixi.js": "^8.17.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+<<<<<<< HEAD
     "recharts": "^3.8.1",
     "tailwind-merge": "^3.5.0",
     "toastr": "^2.1.4",
     "vue": "^3.5.31",
+=======
+    "toastr": "^2.1.4",
+    "vue": "^3.5.32",
+>>>>>>> f759a3e3f10c9abb6086ecf76222f35268e80cf1
     "vue-final-modal": "^4.5.5",
     "vue-router": "^4.6.4",
     "vue-word-highlighter": "^1.2.6",
